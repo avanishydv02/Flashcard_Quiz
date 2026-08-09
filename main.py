@@ -42,6 +42,14 @@ def load_cards(filepath: str) -> List[Dict]:
         List[Dict]: A list of flashcard dictionaries. Each dict contains:
                     'id' (int), 'question' (str), 'answer' (str), 'weight' (int).
     """
+    default_cards = [
+        {"id": 1, "question": "What keyword defines a function in Python?",
+            "answer": "def", "weight": INITIAL_WEIGHT},
+        {"id": 2, "question": "What built-in function returns the length of a list?",
+            "answer": "len", "weight": INITIAL_WEIGHT},
+        {"id": 3, "question": "Which module provides pseudo-random number generators?",
+            "answer": "random", "weight": INITIAL_WEIGHT}
+    ]
     # =========================================================================
     # TODO: Implement this function.
     # 1. Check if the file exists using os.path.exists()
@@ -49,7 +57,20 @@ def load_cards(filepath: str) -> List[Dict]:
     # 3. If it doesn't exist, return a default list or create the file with default values
     # Ensure to use standard try-except blocks for robust error handling.
     # =========================================================================
-    pass
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r") as file:
+                return json.load(file)
+        except (json.JSONDecodeError, OSError) as error:
+            print(f"Error warning: {error}")
+            return default_cards
+    try:
+        with open(filepath, "w", encoding="utf-8") as file:
+            json.dump(default_cards, file, indent=4)
+            print(f"Created new database file at '{filepath}'.")
+    except OSError as error:
+        print(f"Error writing to '{filepath}': {error}")
+    return default_cards
 
 
 def save_cards(cards: List[Dict], filepath: str) -> None:

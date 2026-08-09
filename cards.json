@@ -25,7 +25,7 @@
   },
   {
     "id": 5,
-    "question": "What regularisation technique randomly deactivates neurons during training to prevent co-adaptation?",
+    "question": "What regularization technique randomly deactivates neurons during training to prevent co-adaptation?",
     "answer": "Dropout",
     "weight": 5
   }

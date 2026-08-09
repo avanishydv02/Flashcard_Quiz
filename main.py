@@ -91,7 +91,11 @@ def save_cards(cards: List[Dict], filepath: str) -> None:
     # 2. Serialize the 'cards' list back to JSON (hint: json.dump with indent=4)
     # 3. Handle potential file I/O exceptions gracefully.
     # =========================================================================
-    pass
+    try:
+        with open(filepath, "W") as file:
+            json.dump(cards, file, indent=4)
+    except OSError as error:
+        print(f"Error saving flashcard database to '{filepath}': {error}")
 
 
 def select_card(cards: List[Dict]) -> Dict:
@@ -122,7 +126,11 @@ def select_card(cards: List[Dict]) -> Dict:
     #    the single selected card dictionary.
     # Note: Handle empty card list cases gracefully.
     # =========================================================================
-    pass
+    try:
+        weights = [card["weight"] for card in cards]
+        return random.choices(cards, weights=weights, k=1)[0]
+    except (IndexError, ValueError):
+        return None
 
 
 def update_weight(card: Dict, is_correct: bool) -> Dict:

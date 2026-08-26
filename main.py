@@ -165,7 +165,11 @@ def update_weight(card: Dict, is_correct: bool) -> Dict:
     # 2. If is_correct is False: increase card's weight by 3. Keep it <= MAX_WEIGHT.
     # 3. Return the modified card.
     # =========================================================================
-    pass
+    if is_correct:
+        card["weight"] = max(MIN_WEIGHT, card["weight"] - 1)
+    else:
+        card["weight"] = min(MAX_WEIGHT, card["weight"] + 3)
+    return card
 
 
 def log_score(total_asked: int, correct_count: int, filepath: str = HISTORY_FILE) -> None:
@@ -191,7 +195,16 @@ def log_score(total_asked: int, correct_count: int, filepath: str = HISTORY_FILE
     # 2. Get the current timestamp (hint: datetime.now().strftime("%Y-%m-%d %H:%M:%S")).
     # 3. Open filepath in append mode ('a') and write/append the formatted session summary.
     # =========================================================================
-    pass
+    if total_asked == 0:
+        return
+    accuracy = (correct_count / total_asked) * 100
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = f"{timestamp}, {total_asked}, {correct_count}, {accuracy:.2f}%\n"
+    try:
+        with open(filepath, "a") as file:
+            file.write(log_entry)
+    except OSError as e:
+        print(f"Error logging session history to '{filepath}': {e}")
 
 
 def practice_session(cards: List[Dict]) -> Tuple[int, int]:

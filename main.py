@@ -222,7 +222,7 @@ def practice_session(cards: List[Dict]) -> Tuple[int, int]:
 
     print("\n" + "=" * 50)
     print("             PRACTICE SESSION STARTED             ")
-    print("Type 'exit' or 'quit' to return to the main menu.")
+    print("Type 'exit' or 'quit' to return to the main menu.").lower()
     print("=" * 50 + "\n")
 
     while True:

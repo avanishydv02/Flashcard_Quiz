@@ -92,7 +92,7 @@ def save_cards(cards: List[Dict], filepath: str) -> None:
     # 3. Handle potential file I/O exceptions gracefully.
     # =========================================================================
     try:
-        with open(filepath, "W") as file:
+        with open(filepath, "w", encoding="utf-8") as file:
             json.dump(cards, file, indent=4)
     except OSError as error:
         print(f"Error saving flashcard database to '{filepath}': {error}")
@@ -126,8 +126,10 @@ def select_card(cards: List[Dict]) -> Dict:
     #    the single selected card dictionary.
     # Note: Handle empty card list cases gracefully.
     # =========================================================================
+    if not cards:
+        return None
     try:
-        weights = [card["weight"] for card in cards]
+        weights = [card.get("weight", INITIAL_WEIGHT) for card in cards]
         return random.choices(cards, weights=weights, k=1)[0]
     except (IndexError, ValueError):
         return None
@@ -222,7 +224,7 @@ def practice_session(cards: List[Dict]) -> Tuple[int, int]:
 
     print("\n" + "=" * 50)
     print("             PRACTICE SESSION STARTED             ")
-    print("Type 'exit' or 'quit' to return to the main menu.").lower()
+    print("Type 'exit' or 'quit' to return to the main menu.")
     print("=" * 50 + "\n")
 
     while True:
@@ -245,7 +247,7 @@ def practice_session(cards: List[Dict]) -> Tuple[int, int]:
 
         # Clean user input (trim whitespace, case-insensitive check)
         cleaned_user_ans = user_ans.strip().lower()
-        cleaned_card_ans = card['answer'].strip().lower()
+        cleaned_card_ans = str(card['answer']).strip().lower()
 
         # =========================================================================
         # TODO: Compare clean user answer with correct answer
@@ -256,10 +258,17 @@ def practice_session(cards: List[Dict]) -> Tuple[int, int]:
         # 5. Print the updated weight to help visualize the "Gradient Step".
         # 6. Save the cards list state to CARDS_FILE to ensure persistent weights.
         # =========================================================================
-
+        is_correct = cleaned_user_ans == cleaned_card_ans
+        asked = asked + 1
+        if is_correct:
+            correct_count += 1
+            print("Correct Answer!")
+        else:
+            print(f"Incorrect. Answer: {card['answer']}")
+        update_weight(card, is_correct)
         print(
             f"--- (Visualizing loss update: Weight changed to {card['weight']}) ---\n")
-
+        save_cards(cards, CARDS_FILE)
     return asked, correct_count
 
 
@@ -275,19 +284,24 @@ def show_weights(cards: List[Dict]) -> None:
         print("No cards available to display weights.")
         return
 
-    print("\n" + "=" * 76)
+    print("\n" + "=" * 77)
     print(f" {'ID':<5} | {'Weight (Loss)':<15} | {'Question':<50}")
-    print("-" * 76)
+    print("-" * 77)
 
     # =========================================================================
     # TODO: Print card details formatted cleanly.
     # Loop through 'cards' and print: card['id'], card['weight'], and card['question']
     # structured matching the header above.
     # =========================================================================
-
-    print("-" * 76)
+    for card in cards:
+        # Truncate long questions so the table borders remain aligned
+        q = card['question']
+        question_preview = (q[:47] + "...") if len(q) > 50 else q
+        print(
+            f" {card['id']:<5} | {card['weight']:<15} | {question_preview:<50}")
+    print("-" * 77)
     print("* Tip: Cards with higher weights (higher loss) are prioritized by the sampler.")
-    print("=" * 76 + "\n")
+    print("=" * 77 + "\n")
 
 
 def main():
